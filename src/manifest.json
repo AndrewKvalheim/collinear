@@ -1,0 +1,22 @@
+{
+  "name": "Collinear",
+  "short_name": "Collinear",
+  "description": "Find collinear points in four-dimensional space.",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#d8d8d8",
+  "theme_color": "#826d8a",
+  "icons": [
+    {
+      "src": "/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

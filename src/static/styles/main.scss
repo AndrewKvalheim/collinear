@@ -1,0 +1,213 @@
+// Configuration
+$table: #d8d8d8;
+$paper: #f5f5f5;
+$theme: #444;
+$card-margin: 2vw;
+$select-transform: translateZ(4vw) rotateX(-25deg);
+$imperfection-count: 5;
+$imperfection-max-rotate: 1deg;
+$imperfection-max-translate: 0.8vw;
+
+// Bootstrap
+$brand-primary: $theme;
+$body-bg: $table;
+$icon-font-path: '~bootstrap-sass/assets/fonts/bootstrap/';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap/mixins';
+@import '~bootstrap-sass/assets/stylesheets/bootstrap';
+
+// Derived values
+$predicted-controls-height: $line-height-computed * 5.5;
+
+body {
+  margin: 0;
+}
+
+.classic-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  perspective: 100vh;
+  user-select: none;
+  width: 100vw;
+}
+
+.classic-controls {
+  flex: 0 1;
+  padding: $card-margin;
+  text-align: center;
+  z-index: 10;
+}
+
+.classic-table {
+  flex: 1 1;
+  margin-top: $card-margin;
+  position: relative;
+}
+
+.classic-table-inner {
+  left: 0;
+  overflow: visible;
+  position: absolute;
+  right: 0;
+  text-align: center;
+  top: 0;
+}
+
+.classic-card-container {
+  display: inline-block;
+  margin: $card-margin;
+  position: relative;
+}
+
+.classic-card-container-skeleton {
+  max-width: calc((100vw / 3) - (#{$card-margin} * 2.5));
+  transition-duration: 1s;
+  transition-property: max-height;
+  transition-timing-function: ease;
+
+  @for $row-count from 1 through 8 {
+    .row-count-#{$row-count} & {
+      max-height: calc(((100vh - #{$predicted-controls-height}) / #{$row-count}) - (#{$card-margin} * 2.5));
+    }
+  }
+}
+
+.classic-card-container-content {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.classic-card {
+  align-items: center;
+  background-color: $paper;
+  border-radius: 0.8vw;
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  height: 100%;
+  justify-content: center;
+  width: 100%;
+}
+
+.classic-symbol {
+  height: 60%;
+
+  &:not(:last-child) {
+    margin-right: 7%;
+  }
+}
+
+.progress {
+  margin-bottom: 0;
+}
+
+.classic-card {
+  transform-origin: 80% center;
+  transition-duration: 0.5s;
+  transition-property: transform;
+  transition-timing-function: ease;
+
+  &::before {
+    background-image: linear-gradient(-6deg, rgba(black, 0.10), rgba(black, 0.06));
+    border-radius: #{5% * 5 / 7} / 5%;
+    bottom: 0;
+    box-shadow: 0 0 (10vw) rgba(black, 0.20);
+    content: '';
+    display: block;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition-duration: 0.5s;
+    transition-property: opacity;
+    transition-timing-function: ease;
+  }
+
+  &::after {
+    border-radius: #{5% * 5 / 7} / 5%;
+    bottom: 0;
+    box-shadow: 0 0 (1vw) rgba(black, 0.15);
+    content: '';
+    display: block;
+    left: 0;
+    opacity: 1;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition-duration: 0.5s;
+    transition-property: opacity;
+    transition-timing-function: ease;
+  }
+
+  &:active,
+  &.classic-selected {
+    transform: $select-transform;
+    transition-duration: 0.25s;
+    transition-timing-function: ease-out;
+
+    &::before {
+      opacity: 1;
+    }
+
+    &::after {
+      opacity: 0;
+    }
+  }
+
+  &.classic-hidden {
+    background-image: url('../img/card-back.svg');
+    background-position: 50% 50%;
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    .classic-symbol {
+      display: none;
+    }
+  }
+
+}
+
+@for $imperfection-id from 0 through $imperfection-count - 1 {
+  @keyframes imperfection-show-#{$imperfection-id} {
+    0% {
+      opacity: 0;
+      transform: translateY(5vw) rotateZ(((($imperfection-max-rotate + 5) * 2 * $imperfection-id) / ($imperfection-count - 1) - ($imperfection-max-rotate + 5)));
+    }
+
+    100% {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .classic-card-container.imperfection-#{$imperfection-id} {
+    animation-duration: (0.5 * $imperfection-id / ($imperfection-count - 1) + 0.25) * 1s;
+    animation-name: imperfection-show-#{$imperfection-id};
+
+    @for $offset from 0 through 1 {
+      $inversion: $offset - 1;
+
+      &:nth-child(2n+#{$offset}) {
+        .classic-card {
+          $imperfection-transform: translateX((($imperfection-max-translate * 2 * $imperfection-id) / ($imperfection-count - 1) - $imperfection-max-translate)) translateY($inversion * (($imperfection-max-translate * 2 * $imperfection-id) / ($imperfection-count - 1) - $imperfection-max-translate)) rotateZ((($imperfection-max-rotate * 2 * $imperfection-id) / ($imperfection-count - 1) - $imperfection-max-rotate));
+
+          transform: $imperfection-transform;
+
+          &:active,
+          &.classic-selected {
+            transform: $imperfection-transform $select-transform;
+          }
+        }
+      }
+    }
+  }
+}
+
+.elm-overlay {
+  z-index: 20;
+}
