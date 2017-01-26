@@ -115,7 +115,7 @@ viewKnowledge config model =
         case model.knowledge of
             Unknown ->
                 Html.button
-                    ([ Html.Attributes.class "btn btn-primary"
+                    ([ Html.Attributes.class "btn btn-primary intermittent-control"
                      ]
                         ++ (onTap DeclareNoLines)
                     )
@@ -123,14 +123,15 @@ viewKnowledge config model =
 
             AllLinesFound ->
                 Html.button
-                    ([ Html.Attributes.class "btn btn-primary"
+                    ([ Html.Attributes.class "btn btn-primary intermittent-control"
                      ]
                         ++ (onTap NextEngine)
                     )
                     [ Html.text knowledgeString ]
 
             _ ->
-                Html.text knowledgeString
+                Html.div [ Html.Attributes.class "intermittent-control" ]
+                    [ Html.text knowledgeString ]
 
 
 viewProgress : Model -> Html Msg

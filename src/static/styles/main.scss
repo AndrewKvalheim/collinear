@@ -2,7 +2,7 @@
 $table: #d8d8d8;
 $paper: #f5f5f5;
 $theme: #444;
-$card-margin: 2vmin;
+$card-margin: 1.5vmin;
 $select-transform: translateZ(4vmin) rotateX(-25deg);
 $imperfection-count: 5;
 $imperfection-max-rotate: 1deg;
@@ -210,4 +210,20 @@ body {
 
 .elm-overlay {
   z-index: 20;
+}
+
+.intermittent-control {
+  animation-duration: 0.5s;
+  animation-name: fade-in;
+  animation-timing-function: ease;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
