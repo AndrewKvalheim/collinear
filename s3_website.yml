@@ -1,0 +1,21 @@
+# AWS
+s3_endpoint: <%= ENV['AWS_DEFAULT_REGION'] %>
+s3_id: <%= ENV['AWS_ACCESS_KEY_ID'] %>
+s3_secret: <%= ENV['AWS_SECRET_ACCESS_KEY'] %>
+s3_bucket: <%= ENV['AWS_S3_BUCKET'] %>
+
+# Optimization
+gzip:
+  - .css
+  - .html
+  - .ico
+  - .js
+  - .json
+  - .svg
+
+# Caching
+max_age: <%= 60 * 60 * 24 * 365 %>
+
+# Content
+site: dist
+index_document: index.html
