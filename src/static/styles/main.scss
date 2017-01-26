@@ -2,11 +2,11 @@
 $table: #d8d8d8;
 $paper: #f5f5f5;
 $theme: #444;
-$card-margin: 2vw;
-$select-transform: translateZ(4vw) rotateX(-25deg);
+$card-margin: 2vmin;
+$select-transform: translateZ(4vmin) rotateX(-25deg);
 $imperfection-count: 5;
 $imperfection-max-rotate: 1deg;
-$imperfection-max-translate: 0.8vw;
+$imperfection-max-translate: 0.8vmin;
 
 // Bootstrap
 $brand-primary: $theme;
@@ -84,7 +84,7 @@ body {
 .classic-card {
   align-items: center;
   background-color: $paper;
-  border-radius: 0.8vw;
+  border-radius: 0.8vmin;
   cursor: pointer;
   display: flex;
   flex-direction: row;
@@ -115,7 +115,7 @@ body {
     background-image: linear-gradient(-6deg, rgba(black, 0.10), rgba(black, 0.06));
     border-radius: #{5% * 5 / 7} / 5%;
     bottom: 0;
-    box-shadow: 0 0 (10vw) rgba(black, 0.20);
+    box-shadow: 0 0 (10vmin) rgba(black, 0.20);
     content: '';
     display: block;
     left: 0;
@@ -131,7 +131,7 @@ body {
   &::after {
     border-radius: #{5% * 5 / 7} / 5%;
     bottom: 0;
-    box-shadow: 0 0 (1vw) rgba(black, 0.15);
+    box-shadow: 0 0 (1vmin) rgba(black, 0.15);
     content: '';
     display: block;
     left: 0;
@@ -176,7 +176,7 @@ body {
   @keyframes imperfection-show-#{$imperfection-id} {
     0% {
       opacity: 0;
-      transform: translateY(5vw) rotateZ(((($imperfection-max-rotate + 5) * 2 * $imperfection-id) / ($imperfection-count - 1) - ($imperfection-max-rotate + 5)));
+      transform: translateY(5vmin) rotateZ(((($imperfection-max-rotate + 5) * 2 * $imperfection-id) / ($imperfection-count - 1) - ($imperfection-max-rotate + 5)));
     }
 
     100% {
