@@ -138,13 +138,13 @@ color : Int -> String
 color colorID =
     case colorID of
         0 ->
-            "#c9245f"
+            "#c92864"
 
         1 ->
-            "#248C85"
+            "#188aa3"
 
         2 ->
-            "#de8200"
+            "#d96e2b"
 
         _ ->
             Debug.crash "Unsupported modulus"
@@ -178,13 +178,9 @@ viewPatternDef colorID =
 
 viewShapeDefs : List (Html Msg)
 viewShapeDefs =
-    [ Svg.rect
+    [ Svg.path
         [ Svg.Attributes.id "shape-0"
-        , Svg.Attributes.x "2"
-        , Svg.Attributes.y "2"
-        , Svg.Attributes.width "60"
-        , Svg.Attributes.height "124"
-        , Svg.Attributes.rx "20"
+        , Svg.Attributes.d "M 42,2 a 20,20 0 0 1 20,20 a 32,128 0 0 0 0,84 a 20,20 0 0 1 -20,20 l -20,0 a 20,20 0 0 1 -20,-20 a 32,128 0 0 0 0,-84 a 20,20 0 0 1 20,-20 z"
         ]
         []
     , Svg.path
