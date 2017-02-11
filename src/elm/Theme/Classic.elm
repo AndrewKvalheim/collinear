@@ -138,13 +138,13 @@ color : Int -> String
 color colorID =
     case colorID of
         0 ->
-            "#c92864"
+            "#d12c6c"
 
         1 ->
-            "#188aa3"
+            "#2291a8"
 
         2 ->
-            "#d96e2b"
+            "#e38400"
 
         _ ->
             Debug.crash "Unsupported modulus"
