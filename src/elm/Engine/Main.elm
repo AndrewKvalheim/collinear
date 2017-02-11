@@ -3,30 +3,35 @@ module Engine.Main exposing (init, update)
 import Engine.Geometry as Geometry
 import Engine.Types exposing (..)
 import Engine.Utilities exposing (..)
+import Infix exposing ((>>=))
 import List.Extra
+import Return exposing (Return, singleton)
 import Random
 import Random.List
+import Utilities exposing (..)
 
 
 -- MODEL
 
 
-init : Int -> Int -> Random.Seed -> Model
-init modulus dimension seed =
+init : Int -> Int -> Return Msg Model
+init modulus dimension =
     let
-        ( pool, nextSeed ) =
-            initPool modulus dimension seed
+        model =
+            { modulus = modulus
+            , dimension = dimension
+            , pool = []
+            , sample = []
+            , penalties = 0
+            , knowledge = Unknown
+            , quantityFound = 0
+            }
+
+        poolGenerator =
+            List.range 0 (modulus ^ dimension - 1)
+                |> Random.List.shuffle
     in
-        { modulus = modulus
-        , dimension = dimension
-        , nextSeed = nextSeed
-        , pool = pool
-        , sample = []
-        , penalties = 0
-        , knowledge = Unknown
-        , quantityFound = 0
-        }
-            |> stock 12
+        ( model, Random.generate LoadPool poolGenerator )
 
 
 initPoint : Int -> Int -> List Int -> Int -> Point
@@ -38,39 +43,35 @@ initPoint modulus dimension pool id =
     }
 
 
-initPool : Int -> Int -> Random.Seed -> ( List Int, Random.Seed )
-initPool modulus dimension seed =
-    List.range 0 (modulus ^ dimension - 1)
-        |> Random.List.shuffle
-        |> flip Random.step seed
-
-
 
 -- UPDATE
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
         DeclareNoLines ->
             case Geometry.findLines model.modulus model.sample of
                 [] ->
                     if model.pool == [] then
-                        model |> revealHiddenPoints |> allFound
+                        singleton model <&> revealHiddenPoints <&> allFound
                     else
-                        model |> overstock
+                        singleton model <&> overstock
 
                 lines ->
-                    model |> missedLines lines
+                    singleton model <&> missedLines lines
 
         Deselect pointID ->
-            model |> deselect pointID
+            singleton model <&> deselect pointID
+
+        LoadPool pool ->
+            singleton { model | pool = pool } <&> stock 12
 
         NextEngine ->
-            init model.modulus model.dimension model.nextSeed
+            init model.modulus model.dimension
 
         Select pointID ->
-            model |> select pointID |> evaluateCollinearity
+            singleton model <&> select pointID >>= evaluateCollinearity
 
 
 allFound : Model -> Model
@@ -83,7 +84,7 @@ deselect id model =
     { model | sample = model.sample |> updateAt .id id (setSelected False) }
 
 
-evaluateCollinearity : Model -> Model
+evaluateCollinearity : Model -> Return Msg Model
 evaluateCollinearity model =
     let
         selection =
@@ -91,11 +92,11 @@ evaluateCollinearity model =
     in
         if List.length selection == model.modulus then
             if Geometry.isCollinear model.modulus selection then
-                model |> recordFind |> restock
+                singleton model <&> recordFind <&> restock
             else
-                model |> penalize |> resetSelection
+                singleton model <&> penalize <&> resetSelection
         else
-            model
+            singleton model
 
 
 missedLines : List Line -> Model -> Model

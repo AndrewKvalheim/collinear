@@ -1,12 +1,9 @@
 module Engine.Types exposing (..)
 
-import Random
-
 
 type alias Model =
     { modulus : Int
     , dimension : Int
-    , nextSeed : Random.Seed
     , pool : List Int
     , sample : List Point
     , penalties : Int
@@ -41,5 +38,6 @@ type Line
 type Msg
     = DeclareNoLines
     | Deselect Int
+    | LoadPool (List Int)
     | NextEngine
     | Select Int

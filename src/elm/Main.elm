@@ -3,7 +3,7 @@ module Main exposing (main)
 import Engine.Main
 import Engine.Types
 import Html exposing (Html)
-import Random
+import Return exposing (Return, singleton)
 import Theme.Classic
 
 
@@ -25,13 +25,17 @@ main =
 
 
 type alias Model =
-    { engine : Maybe Engine.Types.Model
+    { engine : Engine.Types.Model
     }
 
 
-init : ( Model, Cmd Msg )
+init : Return Msg Model
 init =
-    { engine = Nothing } ! [ Random.generate InitEngine (Random.int Random.minInt Random.maxInt) ]
+    let
+        ( engine, cmd ) =
+            Engine.Main.init 3 4
+    in
+        ( { engine = engine }, Cmd.map EngineMsg cmd )
 
 
 
@@ -40,17 +44,18 @@ init =
 
 type Msg
     = EngineMsg Engine.Types.Msg
-    | InitEngine Int
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
         EngineMsg message ->
-            { model | engine = model.engine |> Maybe.map (Engine.Main.update message) } ! []
+            singleton model |> withEngine (Engine.Main.update message model.engine)
 
-        InitEngine seed ->
-            { model | engine = Just (Engine.Main.init 3 4 (Random.initialSeed seed)) } ! []
+
+withEngine : Return Engine.Types.Msg Engine.Types.Model -> Return Msg Model -> Return Msg Model
+withEngine ( engine, cmd ) =
+    Return.mapWith (\m -> { m | engine = engine }) (Cmd.map EngineMsg cmd)
 
 
 
@@ -59,9 +64,4 @@ update msg model =
 
 view : Model -> Html Msg
 view model =
-    case model.engine of
-        Nothing ->
-            Html.text "Loading"
-
-        Just engine ->
-            engine |> Theme.Classic.view |> Html.map EngineMsg
+    model.engine |> Theme.Classic.view |> Html.map EngineMsg

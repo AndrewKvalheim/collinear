@@ -8,6 +8,7 @@
   ],
   "exposed-modules": [],
   "dependencies": {
+    "Fresheyeball/elm-return": "6.0.3 <= v < 7.0.0",
     "elm-community/list-extra": "4.0.0 <= v < 5.0.0",
     "elm-community/list-split": "1.0.2 <= v < 2.0.0",
     "elm-community/maybe-extra": "3.0.1 <= v < 4.0.0",
