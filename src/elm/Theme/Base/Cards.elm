@@ -83,7 +83,7 @@ viewPoint config point =
                         , ( "classic-hidden", not point.visible )
                         ]
                      ]
-                        ++ (onTap (message point.id))
+                        ++ (onTap (ToSelf (message point.id)))
                     )
                     (config.viewContent point)
                 ]
@@ -117,7 +117,7 @@ viewKnowledge config model =
                 Html.button
                     ([ Html.Attributes.class "btn btn-primary intermittent-control"
                      ]
-                        ++ (onTap DeclareNoLines)
+                        ++ (onTap (ToSelf DeclareNoLines))
                     )
                     [ Html.text knowledgeString ]
 
@@ -125,7 +125,7 @@ viewKnowledge config model =
                 Html.button
                     ([ Html.Attributes.class "btn btn-primary intermittent-control"
                      ]
-                        ++ (onTap NextEngine)
+                        ++ (onTap (ToParent Done))
                     )
                     [ Html.text knowledgeString ]
 

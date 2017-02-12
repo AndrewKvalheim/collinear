@@ -36,8 +36,26 @@ type Line
 
 
 type Msg
+    = ToSelf InternalMsg
+    | ToParent ExternalMsg
+
+
+type InternalMsg
     = DeclareNoLines
     | Deselect Int
     | LoadPool (List Int)
-    | NextEngine
     | Select Int
+
+
+type ExternalMsg
+    = Done
+
+
+type alias Translator parentMsg =
+    Msg -> parentMsg
+
+
+type alias TranslationDictionary parentMsg =
+    { onInternalMsg : InternalMsg -> parentMsg
+    , onDone : parentMsg
+    }

@@ -1,4 +1,4 @@
-module Engine.Main exposing (init, update)
+module Engine.Main exposing (init, translator, update)
 
 import Engine.Geometry as Geometry
 import Engine.Types exposing (..)
@@ -31,7 +31,7 @@ init modulus dimension =
             List.range 0 (modulus ^ dimension - 1)
                 |> Random.List.shuffle
     in
-        ( model, Random.generate LoadPool poolGenerator )
+        ( model, Random.generate (ToSelf << LoadPool) poolGenerator )
 
 
 initPoint : Int -> Int -> List Int -> Int -> Point
@@ -47,7 +47,17 @@ initPoint modulus dimension pool id =
 -- UPDATE
 
 
-update : Msg -> Model -> Return Msg Model
+translator : TranslationDictionary parentMsg -> Translator parentMsg
+translator translationDictionary msg =
+    case msg of
+        ToSelf internalMsg ->
+            translationDictionary.onInternalMsg internalMsg
+
+        ToParent Done ->
+            translationDictionary.onDone
+
+
+update : InternalMsg -> Model -> Return Msg Model
 update msg model =
     case msg of
         DeclareNoLines ->
@@ -66,9 +76,6 @@ update msg model =
 
         LoadPool pool ->
             singleton { model | pool = pool } <&> stock 12
-
-        NextEngine ->
-            init model.modulus model.dimension
 
         Select pointID ->
             singleton model <&> select pointID >>= evaluateCollinearity

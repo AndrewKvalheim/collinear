@@ -39,9 +39,9 @@ init : Return Msg Model
 init =
     let
         ( engine, cmd ) =
-            Engine.Main.init 3 4
+            initEngine
     in
-        ( { engine = engine }, Cmd.map EngineMsg cmd )
+        ( { engine = engine }, Cmd.map engineTranslator cmd )
 
 
 
@@ -49,19 +49,36 @@ init =
 
 
 type Msg
-    = EngineMsg Engine.Types.Msg
+    = EngineDone
+    | EngineMsg Engine.Types.InternalMsg
+
+
+engineTranslator : Engine.Types.Translator Msg
+engineTranslator =
+    Engine.Main.translator
+        { onInternalMsg = EngineMsg
+        , onDone = EngineDone
+        }
 
 
 update : Msg -> Model -> Return Msg Model
 update msg model =
     case msg of
+        EngineDone ->
+            singleton model |> withEngine initEngine
+
         EngineMsg message ->
             singleton model |> withEngine (Engine.Main.update message model.engine)
 
 
+initEngine : Return Engine.Types.Msg Engine.Types.Model
+initEngine =
+    Engine.Main.init 3 4
+
+
 withEngine : Return Engine.Types.Msg Engine.Types.Model -> Return Msg Model -> Return Msg Model
 withEngine ( engine, cmd ) =
-    Return.mapWith (\m -> { m | engine = engine }) (Cmd.map EngineMsg cmd)
+    Return.mapWith (\m -> { m | engine = engine }) (Cmd.map engineTranslator cmd)
 
 
 
@@ -70,4 +87,4 @@ withEngine ( engine, cmd ) =
 
 view : Model -> Html Msg
 view model =
-    model.engine |> Theme.Classic.view |> Html.map EngineMsg
+    model.engine |> Theme.Classic.view |> Html.map engineTranslator
