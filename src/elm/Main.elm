@@ -5,19 +5,25 @@ import Engine.Types
 import Html exposing (Html)
 import Return exposing (Return, singleton)
 import Theme.Classic
+import Utilities exposing (..)
 
 
 -- APP
 
 
-main : Program Never Model Msg
+main : Program { hot : Bool } Model Msg
 main =
-    Html.program
-        { init = init
+    Html.programWithFlags
+        { init = hotLoadable init
         , view = view
         , update = update
         , subscriptions = always Sub.none
         }
+
+
+hotLoadable : Return Msg Model -> { hot : Bool } -> Return Msg Model
+hotLoadable return { hot } =
+    return |> applyIf hot Return.dropCmd
 
 
 
