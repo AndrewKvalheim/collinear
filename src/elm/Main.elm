@@ -1,7 +1,7 @@
 module Main exposing (main)
 
-import Engine.Main
-import Engine.Types
+import Engine.Main as Engine
+import Engine.Types as Engine
 import Html exposing (Html)
 import Return exposing (Return, singleton)
 import Theme.Classic
@@ -31,7 +31,7 @@ hotLoadable return { hot } =
 
 
 type alias Model =
-    { engine : Engine.Types.Model
+    { engine : Engine.Model
     }
 
 
@@ -50,12 +50,12 @@ init =
 
 type Msg
     = EngineDone
-    | EngineMsg Engine.Types.InternalMsg
+    | EngineMsg Engine.InternalMsg
 
 
-engineTranslator : Engine.Types.Translator Msg
+engineTranslator : Engine.Translator Msg
 engineTranslator =
-    Engine.Main.translator
+    Engine.translator
         { onInternalMsg = EngineMsg
         , onDone = EngineDone
         }
@@ -68,15 +68,15 @@ update msg model =
             singleton model |> withEngine initEngine
 
         EngineMsg message ->
-            singleton model |> withEngine (Engine.Main.update message model.engine)
+            singleton model |> withEngine (Engine.update message model.engine)
 
 
-initEngine : Return Engine.Types.Msg Engine.Types.Model
+initEngine : Return Engine.Msg Engine.Model
 initEngine =
-    Engine.Main.init 3 4
+    Engine.init 3 4
 
 
-withEngine : Return Engine.Types.Msg Engine.Types.Model -> Return Msg Model -> Return Msg Model
+withEngine : Return Engine.Msg Engine.Model -> Return Msg Model -> Return Msg Model
 withEngine ( engine, cmd ) =
     Return.mapWith (\m -> { m | engine = engine }) (Cmd.map engineTranslator cmd)
 
