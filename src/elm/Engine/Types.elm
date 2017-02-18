@@ -20,15 +20,11 @@ type Knowledge
 
 
 type alias Point =
-    Selectable (Showable { id : Int, components : List Int })
-
-
-type alias Selectable a =
-    { a | selected : Bool }
-
-
-type alias Showable a =
-    { a | visible : Bool }
+    { id : Int
+    , components : List Int
+    , selected : Bool
+    , visible : Bool
+    }
 
 
 type Line

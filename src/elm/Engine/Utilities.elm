@@ -10,7 +10,6 @@ module Engine.Utilities
         , updateAt
         )
 
-import Engine.Types exposing (..)
 import List.Extra
 
 
@@ -42,12 +41,12 @@ listPadLeft n x xs =
     (List.repeat (n - (List.length xs)) x) ++ xs
 
 
-setSelected : Bool -> Selectable a -> Selectable a
+setSelected : Bool -> { a | selected : Bool } -> { a | selected : Bool }
 setSelected selected selectable =
     { selectable | selected = selected }
 
 
-setVisible : Bool -> Showable a -> Showable a
+setVisible : Bool -> { a | visible : Bool } -> { a | visible : Bool }
 setVisible visible showable =
     { showable | visible = visible }
 
