@@ -180,7 +180,7 @@ initEngine =
 
 logEvent : Engine.InternalMsg -> Return Msg Model -> Return Msg Model
 logEvent engineMsg =
-    command (Task.perform (LogEvent engineMsg) Time.now)
+    command (Task.perform (LogEvent engineMsg) (delayAfter 500 Time.now))
 
 
 persist : Model -> Cmd Msg
