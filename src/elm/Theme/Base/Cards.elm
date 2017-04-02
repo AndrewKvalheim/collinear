@@ -93,7 +93,7 @@ viewPoint config point =
 onTap : Msg -> List (Html.Attribute Msg)
 onTap message =
     [ Html.Events.onMouseDown message
-    , SingleTouch.onSingleTouch Touch.TouchStart Touch.preventAndStop (\_ -> message)
+    , SingleTouch.onSingleTouch Touch.TouchStart Touch.preventAndStop (always message)
     ]
 
 
