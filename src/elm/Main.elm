@@ -4,11 +4,12 @@ import Engine.Main as Engine
 import Engine.Storage
 import Engine.Types as Engine
 import Html exposing (Html)
-import Infix exposing ((>>=))
 import Json.Decode
 import Json.Encode
-import Return exposing (Return, singleton)
+import Return exposing (Return, effect_, command, singleton)
+import Task
 import Theme.Classic
+import Time exposing (Time)
 import Utilities exposing (..)
 
 
@@ -49,7 +50,13 @@ hotLoadable f flags =
 
 type alias Model =
     { engine : Engine.Model
-    , history : List Engine.InternalMsg
+    , history : List Event
+    }
+
+
+type alias Event =
+    { time : Time
+    , msg : Engine.InternalMsg
     }
 
 
@@ -84,23 +91,40 @@ init flags =
 encode : Model -> Json.Encode.Value
 encode model =
     Json.Encode.object
-        [ ( "history", model.history |> List.map Engine.Storage.encodeInternalMsg |> Json.Encode.list ) ]
+        [ ( "history", model.history |> List.map encodeEvent |> Json.Encode.list ) ]
+
+
+encodeEvent : Event -> Json.Encode.Value
+encodeEvent event =
+    Json.Encode.object
+        [ ( "time", event.time |> Json.Encode.float )
+        , ( "msg", event.msg |> Engine.Storage.encodeInternalMsg )
+        ]
 
 
 decode : Json.Decode.Decoder Model
 decode =
-    Json.Decode.field "history" (Json.Decode.list Engine.Storage.decodeInternalMsg)
+    Json.Decode.field "history" (Json.Decode.list decodeEvent)
         |> Json.Decode.andThen decodeWithHistory
 
 
-decodeWithHistory : List Engine.InternalMsg -> Json.Decode.Decoder Model
+decodeEvent : Json.Decode.Decoder Event
+decodeEvent =
+    Json.Decode.map2 Event
+        (Json.Decode.field "time" Json.Decode.float)
+        (Json.Decode.field "msg" Engine.Storage.decodeInternalMsg)
+
+
+decodeWithHistory : List Event -> Json.Decode.Decoder Model
 decodeWithHistory history =
     let
         updateEngineModel msg model =
             Engine.update msg model |> Tuple.first
 
         engine =
-            history |> List.foldr updateEngineModel (Tuple.first initEngine)
+            history
+                |> List.map .msg
+                |> List.foldr updateEngineModel (Tuple.first initEngine)
     in
         Json.Decode.map2 Model
             (Json.Decode.succeed engine)
@@ -114,6 +138,7 @@ decodeWithHistory history =
 type Msg
     = EngineDone
     | EngineMsg Engine.InternalMsg
+    | LogEvent Engine.InternalMsg Time
 
 
 engineTranslator : Engine.Translator Msg
@@ -126,14 +151,26 @@ engineTranslator =
 
 update : Msg -> Model -> Return Msg Model
 update msg model =
-    (case msg of
+    case msg of
         EngineDone ->
-            singleton model <&> (\m -> { m | history = [] }) |> withEngine initEngine
+            singleton model
+                <&> (\m -> { m | history = [] })
+                |> withEngine initEngine
 
         EngineMsg engineMsg ->
-            singleton model <&> recordHistory engineMsg |> withEngine (Engine.update engineMsg model.engine)
-    )
-        >>= persist
+            singleton model
+                |> logEvent engineMsg
+                |> withEngine (Engine.update engineMsg model.engine)
+
+        LogEvent engineMsg time ->
+            let
+                event =
+                    { time = time
+                    , msg = engineMsg
+                    }
+            in
+                singleton { model | history = event :: model.history }
+                    |> effect_ persist
 
 
 initEngine : Return Engine.Msg Engine.Model
@@ -141,14 +178,14 @@ initEngine =
     Engine.init 3 4
 
 
-persist : Model -> Return Msg Model
+logEvent : Engine.InternalMsg -> Return Msg Model -> Return Msg Model
+logEvent engineMsg =
+    command (Task.perform (LogEvent engineMsg) Time.now)
+
+
+persist : Model -> Cmd Msg
 persist model =
-    ( model, model |> encode |> Json.Encode.encode 0 |> setState )
-
-
-recordHistory : Engine.InternalMsg -> Model -> Model
-recordHistory msg model =
-    { model | history = msg :: model.history }
+    model |> encode |> Json.Encode.encode 0 |> setState
 
 
 withEngine : Return Engine.Msg Engine.Model -> Return Msg Model -> Return Msg Model
